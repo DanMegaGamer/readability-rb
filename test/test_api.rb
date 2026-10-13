@@ -14,12 +14,44 @@ class TestAPI < Minitest::Test
     assert_respond_to result, :title
     assert_respond_to result, :excerpt
     assert_respond_to result, :byline
+    assert_respond_to result, :author
     assert_respond_to result, :text_content
     assert_respond_to result, :length
     assert_respond_to result, :site_name
     assert_respond_to result, :published_time
     assert_respond_to result, :dir
     assert_respond_to result, :lang
+  end
+
+  def test_author_strips_by_prefix_and_trailing_lines
+    {
+      "Jane Doe" => "Jane Doe",
+      "By Steven Mufson" => "Steven Mufson",
+      "by Jane Doe" => "Jane Doe",
+      "By\n\t\t\tScott Cunningham" => "Scott Cunningham",
+      "By Brenda  Goodman, MA\n    WebMD Health News" => "Brenda Goodman, MA",
+      "By GILLIAN MOHNEY\n    March 11, 2015 3:46 PM" => "GILLIAN MOHNEY",
+      "Written by Rob Ewaschuk\n    Edited by Betsy Beyer" => "Rob Ewaschuk",
+      "By: Jane Doe" => "Jane Doe",
+      "Byron Smith" => "Byron Smith"
+    }.each do |byline, author|
+      assert_equal author, Readability::Result.new(byline: byline).author, byline.inspect
+    end
+  end
+
+  def test_author_is_nil_without_byline
+    assert_nil Readability::Result.new(byline: nil).author
+    assert_nil Readability::Result.new(byline: "By ").author
+  end
+
+  def test_parse_returns_author
+    html = <<~HTML
+      <html><head><meta name="author" content="By Jane Doe"></head>
+      <body><p>#{"This is test content. " * 50}</p></body></html>
+    HTML
+    result = Readability.parse(html)
+    assert_equal "By Jane Doe", result.byline
+    assert_equal "Jane Doe", result.author
   end
 
   def test_parse_with_max_elems_to_parse_raises

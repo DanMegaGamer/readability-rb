@@ -22,7 +22,8 @@ gem "readability-rb"
 result = Readability.parse(html, url: "https://example.com/article")
 
 result.title        # article title
-result.byline       # author name
+result.byline       # byline as found, e.g. "By Jane Doe"
+result.author       # author name from the byline, e.g. "Jane Doe"
 result.content      # cleaned HTML content
 result.text_content # plain text content
 result.excerpt      # short summary

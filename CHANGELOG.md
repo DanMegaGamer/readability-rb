@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- Add `Readability::Result#author`, which returns the author name from `#byline` without a leading "By" or trailing lines
+
 ## 0.5.0 (2026-04-17)
 
 - Add `max_attributes` kwarg to `Readability.parse` and `Readability.readerable?` for configuring the per-element attribute limit at parse time (default `1000`)
