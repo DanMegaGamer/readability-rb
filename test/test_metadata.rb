@@ -70,6 +70,31 @@ class TestMetadata < Minitest::Test
       parse(head: article_json_ld("author" => [{"name" => " Jane Smith"}, {"name" => "John Doe﻿"}])).byline
   end
 
+  def test_article_author_meta_ignores_urls
+    ["https://example.com/jane", "mailto:jane@example.com", "urn:isbn:0451450523"].each do |url|
+      result = parse(head: %(<meta property="article:author" content="#{url}">))
+
+      assert_nil result.byline, "byline for #{url}"
+    end
+  end
+
+  def test_article_author_meta_url_falls_back_to_meta_author
+    head = %(<meta property="article:author" content="mailto:jane@example.com">) +
+      %(<meta name="author" content="Jane Smith">)
+
+    assert_equal "Jane Smith", parse(head: head).byline
+  end
+
+  def test_article_author_meta_accepts_names
+    assert_equal "Jane Smith", parse(head: %(<meta property="article:author" content="Jane Smith">)).byline
+  end
+
+  # JS's URL constructor accepts "Jane: Smith" with the scheme "jane:", so
+  # Readability.js ignores it. URI.parse rejects the space, so we keep it.
+  def test_article_author_meta_with_colon_and_space_is_kept
+    assert_equal "Jane: Smith", parse(head: %(<meta property="article:author" content="Jane: Smith">)).byline
+  end
+
   def test_meta_author_trims_unicode_whitespace
     assert_equal "Jane Smith", parse(head: %(<meta name="author" content=" Jane Smith ">)).byline
     assert_equal "Jane Smith", parse(head: %(<meta property="article:author" content=" Jane Smith ">)).byline

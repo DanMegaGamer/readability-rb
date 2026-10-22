@@ -211,9 +211,9 @@ module Readability
     end
 
     # Port of _isUrl (JS line 442)
+    # JS's URL constructor accepts any absolute URL, so any scheme counts.
     def is_url?(str)
-      uri = URI.parse(str)
-      uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      !URI.parse(str).scheme.nil?
     rescue URI::InvalidURIError, URI::InvalidComponentError
       false
     end
