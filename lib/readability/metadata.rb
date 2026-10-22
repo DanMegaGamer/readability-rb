@@ -90,10 +90,10 @@ module Readability
             if parsed["author"].is_a?(Hash) && parsed["author"]["name"].is_a?(String)
               metadata["byline"] = parsed["author"]["name"].strip
             elsif parsed["author"].is_a?(Array) &&
-                parsed["author"][0] &&
+                parsed["author"][0].is_a?(Hash) &&
                 parsed["author"][0]["name"].is_a?(String)
               metadata["byline"] = parsed["author"]
-                .select { |author| author && author["name"].is_a?(String) }
+                .select { |author| author.is_a?(Hash) && author["name"].is_a?(String) }
                 .map { |author| author["name"].strip }
                 .join(", ")
             end

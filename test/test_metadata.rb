@@ -28,4 +28,27 @@ class TestMetadata < Minitest::Test
       assert_nil result.byline, "byline for #{json}"
     end
   end
+
+  def article_json_ld(fields)
+    json_ld(JSON.generate({"@context" => "https://schema.org", "@type" => "NewsArticle"}.merge(fields)))
+  end
+
+  def test_json_ld_author_array_of_strings_is_ignored
+    result = parse(head: article_json_ld("author" => ["Hannah Surname"]))
+
+    assert_nil result.byline
+  end
+
+  def test_json_ld_author_array_of_strings_falls_back_to_meta_author
+    head = article_json_ld("author" => ["Hannah Surname"]) +
+      %(<meta name="author" content="Jane Smith">)
+
+    assert_equal "Jane Smith", parse(head: head).byline
+  end
+
+  def test_json_ld_author_array_skips_string_items
+    result = parse(head: article_json_ld("author" => [{"name" => "Jane Smith"}, "Hannah Surname"]))
+
+    assert_equal "Jane Smith", result.byline
+  end
 end
