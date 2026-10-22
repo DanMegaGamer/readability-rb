@@ -41,7 +41,7 @@ module Readability
 
           if parsed.is_a?(Array)
             parsed = parsed.find do |it|
-              Array(it["@type"]).any? { |t| t.match?(JSON_LD_ARTICLE_TYPES) }
+              Array(it["@type"]).any? { |t| t.is_a?(String) && t.match?(JSON_LD_ARTICLE_TYPES) }
             end
             next unless parsed
           end
@@ -110,8 +110,8 @@ module Readability
           if parsed["datePublished"].is_a?(String)
             metadata["date_published"] = parsed["datePublished"].strip
           end
-        rescue JSON::ParserError => e
-          # Handle malformed JSON gracefully
+        rescue => e
+          # Skip malformed JSON or JSON with an unexpected shape, as JS does
           log(e.message) if respond_to?(:log, true)
         end
       end
