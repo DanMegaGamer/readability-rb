@@ -52,6 +52,23 @@ class TestMetadata < Minitest::Test
     assert_equal "Jane Smith", result.byline
   end
 
+  # Readability.js calls @type.match, which throws for an array, so it skips
+  # the script. schema.org allows an array, so we accept it on purpose.
+  def test_json_ld_type_array_is_accepted
+    result = parse(head: article_json_ld("@type" => ["NewsArticle"], "author" => {"name" => "Jane Smith"}))
+
+    assert_equal "Jane Smith", result.byline
+  end
+
+  def test_json_ld_type_array_in_graph_is_accepted
+    json = JSON.generate(
+      "@context" => "https://schema.org",
+      "@graph" => [{"@type" => ["WebPage"]}, {"@type" => ["Thing", "Article"], "author" => {"name" => "Jane Smith"}}]
+    )
+
+    assert_equal "Jane Smith", parse(head: json_ld(json)).byline
+  end
+
   def test_byline_element_trims_unicode_whitespace
     result = parse(body_prefix: %(<div class="byline"> By Jane Smith </div>))
 

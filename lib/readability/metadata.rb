@@ -64,6 +64,8 @@ module Readability
             end
           end
 
+          # Unlike JS, accept an array @type, which schema.org allows. JS calls
+          # @type.match, which throws for an array, so it skips the script.
           next if !parsed || !parsed["@type"] || !Array(parsed["@type"]).any? { |t| t.is_a?(String) && t.match?(JSON_LD_ARTICLE_TYPES) }
 
           metadata = {}
