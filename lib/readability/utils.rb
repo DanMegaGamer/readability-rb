@@ -33,10 +33,10 @@ module Readability
     end
 
     # JS-compatible trim that also strips Unicode whitespace like \u00A0 (NBSP)
-    # JS's String.prototype.trim() strips all Unicode whitespace including NBSP.
+    # JS's String.prototype.trim() strips all Unicode whitespace and \uFEFF (BOM).
     # Ruby's String#strip only removes ASCII whitespace.
     def js_trim(str)
-      str.gsub(/\A[\s\u00A0]+|[\s\u00A0]+\z/, "")
+      str.gsub(/\A[[:space:]\uFEFF]+|[[:space:]\uFEFF]+\z/, "")
     end
 
     # Port of _getInnerText (JS line 2084)

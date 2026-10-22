@@ -88,13 +88,13 @@ module Readability
 
           if parsed["author"]
             if parsed["author"].is_a?(Hash) && parsed["author"]["name"].is_a?(String)
-              metadata["byline"] = parsed["author"]["name"].strip
+              metadata["byline"] = js_trim(parsed["author"]["name"])
             elsif parsed["author"].is_a?(Array) &&
                 parsed["author"][0].is_a?(Hash) &&
                 parsed["author"][0]["name"].is_a?(String)
               metadata["byline"] = parsed["author"]
                 .select { |author| author.is_a?(Hash) && author["name"].is_a?(String) }
-                .map { |author| author["name"].strip }
+                .map { |author| js_trim(author["name"]) }
                 .join(", ")
             end
           end
@@ -225,7 +225,7 @@ module Readability
           if matches
             # Convert to lowercase, and remove any whitespace
             name = matches[0].downcase.gsub(/\s/, "")
-            values[name] = content.strip
+            values[name] = js_trim(content)
           end
         end
 
@@ -234,7 +234,7 @@ module Readability
           if content
             # Convert to lowercase, remove whitespace, convert dots to colons
             name = name.downcase.gsub(/\s/, "").gsub(".", ":")
-            values[name] = content.strip
+            values[name] = js_trim(content)
           end
         end
       end

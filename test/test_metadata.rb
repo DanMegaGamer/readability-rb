@@ -51,4 +51,27 @@ class TestMetadata < Minitest::Test
 
     assert_equal "Jane Smith", result.byline
   end
+
+  def test_byline_element_trims_unicode_whitespace
+    result = parse(body_prefix: %(<div class="byline"> By Jane Smith </div>))
+
+    assert_equal "By Jane Smith", result.byline
+  end
+
+  def test_byline_element_with_item_prop_name_trims_unicode_whitespace
+    byline = %(<div class="byline">By <span itemprop="name">　Jane Smith </span></div>)
+
+    assert_equal "Jane Smith", parse(body_prefix: byline).byline
+  end
+
+  def test_json_ld_author_name_trims_unicode_whitespace
+    assert_equal "Jane Smith", parse(head: article_json_ld("author" => {"name" => " Jane Smith "})).byline
+    assert_equal "Jane Smith, John Doe",
+      parse(head: article_json_ld("author" => [{"name" => " Jane Smith"}, {"name" => "John Doe﻿"}])).byline
+  end
+
+  def test_meta_author_trims_unicode_whitespace
+    assert_equal "Jane Smith", parse(head: %(<meta name="author" content=" Jane Smith ">)).byline
+    assert_equal "Jane Smith", parse(head: %(<meta property="article:author" content=" Jane Smith ">)).byline
+  end
 end
